@@ -3,19 +3,14 @@ import select
 import argparse
 import random
 
+
 SERVER_HOST = "127.0.0.1"
 EOL1 = b"\n\n"
 EOL2 = b"\n\r\n"
 SERVER_RESPONSE = [
-    b"""HTTP/1.1 200 OK\r\nDate: Mon, 1 Apr 2013 01:01:01
-    GTM\r\nContent-Type: text/plain\r\nContent-Lenght: 25\r\n\r\n
-    Welcome to Narnia!""",
-    b"""HTTP/1.1 200 OK\r\nDate: Mon, 1 Apr 2013 01:01:01
-    GTM\r\nContent-Type: text/plain\r\nContent-Lenght: 30\r\n\r\n
-    Hello from Narnia Server!""",
-    b"""HTTP/1.1 200 OK\r\nDate: Mon, 1 Apr 2013 01:01:01
-    GTM\r\nContent-Type: text/plain\r\nContent-Lenght: 25\r\n\r\n
-    WTF!""",
+    "http://actravel.ru/country_codes.html",
+    "https://github.com/Kiril0l?tab=repositories",
+    "https://openweathermap.org/current"
 ]
 
 class EpollServer(object):
@@ -30,11 +25,22 @@ class EpollServer(object):
         self.epoll =select.epoll()
         self.epoll.register(self.sock.fileno(), select.EPOLLIN)
 
+
+    def visit():
+        pass
+
     def run(self):
+        connections = {};
+        requests = {};
+        responses = {}
+        events = self.epoll.poll(1)
+        data = requests.get(SERVER_RESPONSE[random.randint(0, 2)])
+        for key, value in data.headers.items():
+            lines.append(f"{key} {value}")
+        header = "\r\n".join(lines + ["\r\n\r\n"])
+        html = data.text
+        self.response = f"{header}{html}".encode("utf-8")
         try:
-            connections = {};
-            requests = {};
-            responses = {}
             while True:
                 events = self.epoll.poll(1)
                 for fileno, event in events:
@@ -47,8 +53,6 @@ class EpollServer(object):
                         )
                         connections[connection.fileno()] = connection
                         requests[connection.fileno()] = b''
-                        responses[connection.fileno()] = \
-                        SERVER_RESPONSE[random.randint(0, 2)]
                     elif event & select.EPOLLIN:
                         requests[fileno] += connections[fileno].recv(1024)
                         if EOL1 in requests[fileno] or EOL2 in requests[fileno]:
